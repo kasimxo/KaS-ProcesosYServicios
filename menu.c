@@ -2,18 +2,17 @@
 #include <signal.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 //Variables Globales
 int TRUE = 1;
 int FALSE = 0;
 int sel;
+int contador;
 //Probando -> Esta variable almacena si queremos salir del programa. 
 //Mientras sea TRUE, seguiremos con el menu
 int probando;
-//Suboproceso -> Esta variable bloquea este proceso (padre)
-//si hay un proceso hijo
-int subproceso;
-int pidSubproceso;
+pid_t pidSubproceso;
 
 //Declaraciones de funciones
 void menu();
@@ -21,21 +20,8 @@ void opciones();
 
 int main(){
 	probando = TRUE;
-	subproceso = FALSE;
-	pidSubproceso = -1;
 	while(probando == TRUE){
-		if(subproceso == FALSE){
-			if(pidSubproceso>0 && (kill(pidSubproceso,0))==0) {
-				printf("\nHay un subproceso en ejecución, por lo que ");
-				printf("el proceso padre, con pid %d, va a detener su ejecución hasta que el proceso hijo, con pid %d, finalice.",getpid(),pidSubproceso);
-				subproceso = TRUE;
-			} else {
-				printf("\nNo hay ningún subproceso en ejecución.");
-				pidSubproceso = -1;
-				subproceso = FALSE;
-				menu();
-			}
-		}
+		menu();
 	}
 	printf("\nSaliendo del programa sin errores.\n");
 	return 0;
@@ -53,9 +39,15 @@ void menu(){
 			break;
 		case 2:
 			//Uso de fork
+			printf("\nIntroduce la cantidad de números de la secuencia de Fibonacci que quieres generar: ");
+			scanf("%d", &contador);
 			fibo();
 			break;
 		case 3:
+			//Uso de una función recursiva
+			printf("\nIntroduce el valor del que quieres calcular el factorial: ");
+			scanf("%d", &contador);
+			printf("El valor de %d! es %d",contador,factorial(contador));
 			break;
 		case 4:
 			break;
@@ -84,7 +76,7 @@ void menu(){
 void opciones(){
 	printf("\n1. Directorio");
 	printf("\n2. Fibonacci");
-	printf("\n3. ");
+	printf("\n3. Factorial");
 	printf("\n4. ");
 	printf("\n5. ");
 	printf("\n6. ");
@@ -107,25 +99,46 @@ void directorio(){
 void fibo() {
 	printf("\nSe va a iniciar un nuevo proceso para generar la secuencia de Fibonacci mediante el uso de fork:");
 	printf("\nEl PID del proceso padre es: %d", getpid());
-	pid_t pid;
 	printf("\nIniciando subproceso.");	
+		
+	pid_t pid = fork();
 	
-	if ((pid=fork()) < 0) {
+	if (pid < 0) {
 		perror("\nHa fallado el uso de fork");
 	} else if(pid == 0) {
 		printf("\nEl PID del proceso hijo es: %d", getpid());
 		fibonacci();
 		printf("\nCerramos el proceso hijo.");
-		exit(1);
 	} else if(pid>0){
-		pidSubproceso=pid;	
+		printf("\nEl proceso padre va a esperar a que el proceso hijo finnalice");
+		int status;
+		waitpid(pid, &status,WUNTRACED);	
+		printf("\nEl proceso padre va a reanudar su funcionamiento");
 	}
+
 }
 
 void fibonacci(){
-	int contador;
 	int n1 = 0;
 	int n2 = 1;
-	printf("\n¿Cuántos número de la secuencia de Fibonacci quieres generar?");
-	scanf("%d", contador);
+	printf("\nImprimiendo la secuencia");
+	printf("\nSe van a generar %d numeros de fibonacci",contador);
+	printf("\n%d\n%d",n1,n2);
+	for(int i = 0; i<contador; i++){
+		int aux = n2;
+		n2 += n1;
+		n1 = aux;
+		printf("\n%d",n2);
+	}
+	printf("\n");
+	exit(0);
 }
+int factorial(int value) {
+	if(value<2){
+		return 1;
+	} else{
+		int aux = factorial(value-1);
+		return value * aux;
+	}
+}
+
