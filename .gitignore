@@ -1,0 +1,6 @@
+#Ignoramos todo tipo de archivos sin extension
+#Con eso evitamos hacer push de las versiones compiladas
+*
+
+#La excepcion de archivos con extension
+!.*
