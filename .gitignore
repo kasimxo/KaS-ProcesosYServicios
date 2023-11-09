@@ -3,4 +3,7 @@
 *
 
 #La excepcion de archivos con extension
-!.*
+!*.c
+!*.txt
+!*.gitignore
+!*.*

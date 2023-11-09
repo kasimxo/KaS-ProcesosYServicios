@@ -109,7 +109,7 @@ void fibo() {
 		printf("\nEl PID del proceso hijo es: %d", getpid());
 		fibonacci();
 	} else if(pid>0){
-		printf("\nEl proceso padre va a esperar a que el proceso hijo finnalice");
+		printf("\nEl proceso padre va a esperar a que el proceso hijo finalice");
 		int status;
 		waitpid(pid, &status,WUNTRACED);	
 		printf("\nEl proceso padre va a reanudar su funcionamiento");
