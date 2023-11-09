@@ -108,7 +108,6 @@ void fibo() {
 	} else if(pid == 0) {
 		printf("\nEl PID del proceso hijo es: %d", getpid());
 		fibonacci();
-		printf("\nCerramos el proceso hijo.");
 	} else if(pid>0){
 		printf("\nEl proceso padre va a esperar a que el proceso hijo finnalice");
 		int status;
@@ -130,7 +129,7 @@ void fibonacci(){
 		n1 = aux;
 		printf("\n%d",n2);
 	}
-	printf("\n");
+	printf("\nCerramos el proceso hijo.");
 	exit(0);
 }
 int factorial(int value) {
