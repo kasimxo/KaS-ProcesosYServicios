@@ -18,7 +18,7 @@ pid_t pidSubproceso;
 void menu();
 void opciones();
 
-int main(){
+int main(int argc, char* argv[]){
 	probando = TRUE;
 	while(probando == TRUE){
 		menu();
@@ -50,6 +50,8 @@ void menu(){
 			printf("El valor de %d! es %d",contador,factorial(contador));
 			break;
 		case 4:
+			//Uso de excel()
+			bateria();
 			break;
 		case 5:
 			break;
@@ -72,12 +74,18 @@ void menu(){
 			break;
 	}
 }
+void bateria(){
+	printf("\nSe va a consultar la bateria actual mediante la ejecución del programa 'Bateria' con excel()");
+	char *argumentos[] = {"./Bateria", NULL};
+	execl(argumentos[0],argumentos);
+	printf("\nSe ha consultado la batería sin errores");
+}
 
 void opciones(){
 	printf("\n1. Directorio");
 	printf("\n2. Fibonacci");
 	printf("\n3. Factorial");
-	printf("\n4. ");
+	printf("\n4. Batería");
 	printf("\n5. ");
 	printf("\n6. ");
 	printf("\n7. ");
