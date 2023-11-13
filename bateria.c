@@ -37,9 +37,9 @@ int main(int argc, char* argv[]) {
 }
 
 double calcularPorcentaje() {
-	double total = bateriaTotal * 1.0;
-	double actual = bateriaActual * 1.0;
-	double porcentaje = actual/total * 100.0;
+	double total = bateriaTotal * 1.00;
+	double actual = bateriaActual * 1.00;
+	double porcentaje = actual/total * 100.00;
 	return porcentaje;
 }
 

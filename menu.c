@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <ctype.h>
+#include <string.h>
 
 //Variables Globales
 int TRUE = 1;
@@ -17,6 +19,16 @@ pid_t pidSubproceso;
 //Declaraciones de funciones
 void menu();
 void opciones();
+void bateria();
+void directorio();
+void fibo();
+void fibonacci();
+int factorial();
+int introducirNumero();
+int comprobarNumero();
+int stringToInt();
+void pausa();
+void usuarioActual();
 
 int main(int argc, char* argv[]){
 	probando = TRUE;
@@ -28,9 +40,10 @@ int main(int argc, char* argv[]){
 }
 
 void menu(){
-	printf("\nProgramación de servicios y procesos:\nIntroduce tu selección");
+	system("clear");
+	printf("Programación de servicios y procesos:\nIntroduce tu selección");
 	opciones();
-	scanf("%d", &sel);
+	sel = introducirNumero("\nIntroduce tu selección: ");
 	printf("\nHas seleccionado la opción: %d",sel);
 	switch (sel){
 		case 1:
@@ -39,14 +52,12 @@ void menu(){
 			break;
 		case 2:
 			//Uso de fork
-			printf("\nIntroduce la cantidad de números de la secuencia de Fibonacci que quieres generar: ");
-			scanf("%d", &contador);
+			contador = introducirNumero("\nIntroduce la cantidad de números de la secuencia de Fibonacci que quieres generar: ");
 			fibo();
 			break;
 		case 3:
 			//Uso de una función recursiva
-			printf("\nIntroduce el valor del que quieres calcular el factorial: ");
-			scanf("%d", &contador);
+			contador = introducirNumero("\nIntroduce el valor del que quieres calcular el factorial: ");
 			printf("El valor de %d! es %d",contador,factorial(contador));
 			break;
 		case 4:
@@ -54,6 +65,8 @@ void menu(){
 			bateria();
 			break;
 		case 5:
+			//Recupera el nombre de usuario actual e invierte la cadena 
+			usuarioActual();
 			break;
 		case 6:
 			break;
@@ -74,11 +87,90 @@ void menu(){
 			break;
 	}
 }
+//Este método utiliza una pipe para recuperar datos al ejecutar un comando
+void usuarioActual() {
+	FILE *fp;
+	char path[1035];
+	char usuario[25];
+	fp = popen("who","r");
+	if (fp == NULL) {
+		printf("\nNo se ha podido consultar el usuario actual");
+	}
+
+	while (fgets(path, sizeof(path), fp) != NULL) {
+		printf("\n%s", path);
+		
+	}
+	
+	int contador = 0;
+	while (contador<= 25 || path[contador] != 32) {
+		usuario[contador] = path[contador];
+		contador++;
+	}
+	
+	printf("\n%s", usuario);
+	pclose(fp);
+	pausa();
+}
+
+void pausa() {
+	printf("\nPulsa cualquier tecla y presiona enter para continuar...");
+	char dummy;
+	char pulsado[100];
+	scanf("%c",&dummy);
+	scanf("%c",&pulsado);
+}
+
+//Este método muestra un texto y pide al usuario que introduzca un número
+//Comprueba que sea un número y no otra cosa
+//Si no es un número, vuelve a pedir al usuario que lo introduzca
+int introducirNumero(char texto[]) {
+	char escaneado[100];
+	do {
+		printf("%s", texto);
+		scanf("%s",&escaneado);
+	} while (comprobarNumero(escaneado)==FALSE);
+
+	return stringToInt(escaneado);	
+}
+
+int stringToInt(char escaneado[]) {
+	int valor = 0;
+	for(int i = 0; i<strlen(escaneado); i++) {
+		valor +=(escaneado[i] - 'O' + 31);
+		valor *= 10;
+	}
+	valor /= 10;
+	return valor;
+}
+
+int comprobarNumero(char escaneado[]){
+	for(int i = 0; i<strlen(escaneado); i++) {
+		if(isdigit(escaneado[i])==0) {
+			printf("\nEl valor introducido no es válido");
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 void bateria(){
 	printf("\nSe va a consultar la bateria actual mediante la ejecución del programa 'Bateria' con excel()");
 	char *argumentos[] = {"./Bateria", NULL};
-	execl(argumentos[0],argumentos);
-	printf("\nSe ha consultado la batería sin errores");
+	pid_t p;
+	if((p = fork())<0){
+		printf("\nHa surgido un error tratando de ejecutar el programa 'Batería'");
+	} else if (p == 0) {
+		execl("./Bateria", NULL);
+	} else 	{
+		int status;
+		waitpid(p, &status,WUNTRACED);	
+		printf("\nSe ha consultado la batería sin errores");
+		pausa();
+	}
+
+
+	//execl(argumentos[0],NULL);
 }
 
 void opciones(){
@@ -86,7 +178,7 @@ void opciones(){
 	printf("\n2. Fibonacci");
 	printf("\n3. Factorial");
 	printf("\n4. Batería");
-	printf("\n5. ");
+	printf("\n5. Usuario");
 	printf("\n6. ");
 	printf("\n7. ");
 	printf("\n8. ");
@@ -102,6 +194,7 @@ void directorio(){
 	} else {
 		printf("\nHa surgido un error consultando el directorio actual.");
 	}
+	pausa();
 }
 
 void fibo() {
@@ -122,7 +215,7 @@ void fibo() {
 		waitpid(pid, &status,WUNTRACED);	
 		printf("\nEl proceso padre va a reanudar su funcionamiento");
 	}
-
+	pausa();
 }
 
 void fibonacci(){
@@ -131,7 +224,7 @@ void fibonacci(){
 	printf("\nImprimiendo la secuencia");
 	printf("\nSe van a generar %d numeros de fibonacci",contador);
 	printf("\n%d\n%d",n1,n2);
-	for(int i = 0; i<contador; i++){
+	for(int i = 0; i<contador - 2; i++){
 		int aux = n2;
 		n2 += n1;
 		n1 = aux;
@@ -147,5 +240,6 @@ int factorial(int value) {
 		int aux = factorial(value-1);
 		return value * aux;
 	}
+	pausa();
 }
 
