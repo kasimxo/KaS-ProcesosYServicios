@@ -9,7 +9,7 @@ Tiene un menú con distintas opciones:
   2. - Fibonacci: Genera un proceso hijo con el uso de fork() para calcular tantos números de la secuencia Fibonacci como el usuario haya introducido, después, finaliza el proceso hijo.
   3. - Factorial: Calcula el valor factorial de un número introducido por el usuario, de manera recursiva.
   4. - Batería: Ejecuta el programa Bateria mediante excel().
-  5. - 
+  5. - Usuario: Imprimer el nombre del usuario actual por pantalla y después lo muestra invertido 
   6. - 
   7. - 
   8. - 

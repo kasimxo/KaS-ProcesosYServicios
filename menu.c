@@ -29,6 +29,8 @@ int comprobarNumero();
 int stringToInt();
 void pausa();
 void usuarioActual();
+void mostrarRegistroOpciones();
+void eliminarRegistroOpciones();
 
 int main(int argc, char* argv[]){
 	probando = TRUE;
@@ -71,12 +73,20 @@ void menu(){
 		case 6:
 			break;
 		case 7:
+			//Eliminar el registro de opciones
+			eliminarRegistroOpciones();
+			
 			break;
 		case 8:
+			//Consulta del archivo de registro de opciones
+			mostrarRegistroOpciones();
 			break;
 		case 9:
+			//Apertura de pipe
+			//Comienzo de registro de opciones
 			break;
 		case 10:
+			//Cierre de pipe
 			break;
 		case 11:
 			//Salir del programa
@@ -109,9 +119,9 @@ void usuarioActual() {
 	}
 	
 	printf("\nEl usuario actual es: %s", usuario);
-	printf("\nEl nombre del usaurio invertido es: \n");
+	printf("\nEl nombre del usaurio invertido es: ");
 	for(int i = sizeof(usuario); i>=0; i--) {
-		if(usuario[i]!=' ') {
+		if(usuario[i]!=' ' && usuario[i]>20) {
 			printf("%c", usuario[i]);
 		}
 	}
@@ -176,22 +186,19 @@ void bateria(){
 		printf("\nSe ha consultado la batería sin errores");
 		pausa();
 	}
-
-
-	//execl(argumentos[0],NULL);
 }
 
 void opciones(){
-	printf("\n1. Directorio");
-	printf("\n2. Fibonacci");
-	printf("\n3. Factorial");
-	printf("\n4. Batería");
-	printf("\n5. Usuario");
-	printf("\n6. ");
-	printf("\n7. ");
-	printf("\n8. ");
-	printf("\n9. ");
-	printf("\n10. ");
+	printf("\n 1. Directorio");
+	printf("\n 2. Fibonacci");
+	printf("\n 3. Factorial");
+	printf("\n 4. Batería");
+	printf("\n 5. Usuario");
+	printf("\n 6. ");
+	printf("\n 7. Eliminar registro de opciones");
+	printf("\n 8. Consultar registro de opciones");
+	printf("\n 9. Iniciar registro de opciones");
+	printf("\n10. Finalizar registro de opciones");
 	printf("\n11. Salir\n");
 }
 void directorio(){
@@ -240,6 +247,7 @@ void fibonacci(){
 	}
 	printf("\nCerramos el proceso hijo.");
 	exit(0);
+
 }
 int factorial(int value) {
 	if(value<2){
@@ -251,3 +259,26 @@ int factorial(int value) {
 	pausa();
 }
 
+void mostrarRegistroOpciones() {
+	if(access("RegistroOpciones", F_OK) == 0) {
+		system("cat RegistroOpciones");
+	} else {
+		printf("\nNo se ha encontrado el registro de opciones. ¿Seguro que habías creado alguno?");
+	}
+	pausa();
+}
+
+void eliminarRegistroOpciones() {
+	if(access("RegistroOpciones", F_OK) == 0) {
+		int resultado = system("rm RegistroOpciones");
+		if(resultado == 0) {
+			printf("\nSe ha eliminado el registro de opciones con éxito");
+		} else {
+			printf("\nSe ha encontrado un error tratando de eliminar el registro de opciones");
+		}
+	} else {
+	
+		printf("\nNo se ha encontrado el registro de opciones. ¿Seguro que habías creado alguno?");
+	}
+	pausa();
+}
