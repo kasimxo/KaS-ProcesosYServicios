@@ -92,7 +92,7 @@ void usuarioActual() {
 	FILE *fp;
 	char path[1035];
 	char usuario[25];
-	fp = popen("who","r");
+	fp = popen("whoami","r");
 	if (fp == NULL) {
 		printf("\nNo se ha podido consultar el usuario actual");
 	}
@@ -103,12 +103,20 @@ void usuarioActual() {
 	}
 	
 	int contador = 0;
-	while (contador<= 25 || path[contador] != 32) {
+	while (contador<= 25 && path[contador] != ' ') {
 		usuario[contador] = path[contador];
 		contador++;
 	}
 	
-	printf("\n%s", usuario);
+	printf("\nEl usuario actual es: %s", usuario);
+	printf("\nEl nombre del usaurio invertido es: \n");
+	for(int i = sizeof(usuario); i>=0; i--) {
+		if(usuario[i]!=' ') {
+			printf("%c", usuario[i]);
+		}
+	}
+	
+
 	pclose(fp);
 	pausa();
 }
