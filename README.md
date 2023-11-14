@@ -11,10 +11,10 @@ Tiene un menú con distintas opciones:
   4. - Batería: Ejecuta el programa Bateria mediante excel().
   5. - Usuario: Imprimer el nombre del usuario actual por pantalla y después lo muestra invertido 
   6. - 
-  7. - 
-  8. - 
-  9. - 
-  10. - 
+  7. - Eliminar registro de opciones: Elimina el archivo "RegistroOpciones" si este existe.
+  8. - Consultar registro de opciones: Muestra por pantalla el contenido del archivo "RegistroOpciones".
+  9. - Iniciar registro de opciones: Inicia un subproceso al que le enviará los mismos inputs que hace el usuario sobre la selección de opciones a través de una pipe. Estos inputs se grabarán en un archivo denominado "RegistroOpciones" junto con el nombre de usuario, la fecha y el resultado de la ejecución de esa opción.
+  10. - Finalizar registro de opciones: Finaliza el subproceso que graba las opciones.
   11. - Salir: Cierra el programa.
  
   
