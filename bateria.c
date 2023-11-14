@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 
 //Esta macro comprueba si el sistema operativo es Linux
 //Puede haber ciertas distribuciones que se salten esta comprobacion
@@ -19,20 +20,35 @@ float porcentaje;
 double calcularPorcentaje();
 int consultarBateriaActual();
 int consultarBateriaTotal();
+int comprobarPortatil();
 
 int main(int argc, char* argv[]) {
 	printf("\nSe va a consultar la capacidad total de la bateria");
 	//Antes de ejecutar el programa comprobamos si es un SO Linux
 	if(LINUX==TRUE){
-		bateriaTotal = consultarBateriaTotal();
-		bateriaActual = consultarBateriaActual();
-		porcentaje = calcularPorcentaje();
-		printf("\nEl porcentaje actual de la batería es: %.2f %%\n", porcentaje);
-		return 0;
+		if(comprobarPortatil()==TRUE) {
+			bateriaTotal = consultarBateriaTotal();
+			bateriaActual = consultarBateriaActual();
+			porcentaje = calcularPorcentaje();
+			printf("\nEl porcentaje actual de la batería es: %.2f %%\n", porcentaje);
+			return 0;
+		} else {
+			printf("\nNo se ha podido comprobar el estado de la bateria Estas utilizando un ordenador de sobremesa?");
+			printf("\nPor seguridad, se va a detener la ejecucion del programa");
+		}
 	} else {
 		printf("\nNo se ha podido certificar que el sistema operativo sea Linux");
 		printf("\nPor seguridad, se va a detener la ejecución del programa");
 		return -1;
+	}
+}
+
+int comprobarPortatil() {
+	if(access("/sys/class/power_supply/BAT0/charge_now",F_OK) == 0) {
+		printf("\nSe ha certificado el tipo de ordenador");
+		return TRUE;
+	} else {
+		return FALSE;
 	}
 }
 
