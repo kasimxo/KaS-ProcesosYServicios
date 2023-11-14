@@ -15,6 +15,7 @@ int contador;
 //Mientras sea TRUE, seguiremos con el menu
 int probando;
 pid_t pidSubproceso;
+FILE *registro;
 
 //Declaraciones de funciones
 void menu();
@@ -31,6 +32,8 @@ void pausa();
 void usuarioActual();
 void mostrarRegistroOpciones();
 void eliminarRegistroOpciones();
+void abrirPipe();
+void cerrarPipe();
 
 int main(int argc, char* argv[]){
 	probando = TRUE;
@@ -61,6 +64,7 @@ void menu(){
 			//Uso de una función recursiva
 			contador = introducirNumero("\nIntroduce el valor del que quieres calcular el factorial: ");
 			printf("El valor de %d! es %d",contador,factorial(contador));
+			pausa();
 			break;
 		case 4:
 			//Uso de excel()
@@ -84,9 +88,11 @@ void menu(){
 		case 9:
 			//Apertura de pipe
 			//Comienzo de registro de opciones
+			abrirPipe();
 			break;
 		case 10:
 			//Cierre de pipe
+			cerrarPipe();
 			break;
 		case 11:
 			//Salir del programa
@@ -113,17 +119,15 @@ void usuarioActual() {
 	}
 	
 	int contador = 0;
-	while (contador<= 25 && path[contador] != ' ') {
+	while (contador<= 25 && path[contador] >47 && path[contador]<123) {
 		usuario[contador] = path[contador];
 		contador++;
 	}
 	
 	printf("\nEl usuario actual es: %s", usuario);
 	printf("\nEl nombre del usaurio invertido es: ");
-	for(int i = sizeof(usuario); i>=0; i--) {
-		if(usuario[i]!=' ' && usuario[i]>20) {
+	for(int i = contador; i>=0; i--) {
 			printf("%c", usuario[i]);
-		}
 	}
 	
 
@@ -256,7 +260,6 @@ int factorial(int value) {
 		int aux = factorial(value-1);
 		return value * aux;
 	}
-	pausa();
 }
 
 void mostrarRegistroOpciones() {
@@ -281,4 +284,10 @@ void eliminarRegistroOpciones() {
 		printf("\nNo se ha encontrado el registro de opciones. ¿Seguro que habías creado alguno?");
 	}
 	pausa();
+}
+
+void abrirPipe() {
+}
+
+void cerrarPipe() {
 }
