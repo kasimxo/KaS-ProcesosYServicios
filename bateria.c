@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 //Esta macro comprueba si el sistema operativo es Linux
 //Puede haber ciertas distribuciones que se salten esta comprobacion
@@ -23,7 +24,7 @@ int consultarBateriaTotal();
 int comprobarPortatil();
 
 int main(int argc, char* argv[]) {
-	printf("\nSe va a consultar la capacidad total de la bateria");
+	printf("\nSe va a consultar el porcentaje de batería actual");
 	//Antes de ejecutar el programa comprobamos si es un SO Linux
 	if(LINUX==TRUE){
 		if(comprobarPortatil()==TRUE) {
@@ -66,11 +67,12 @@ int consultarBateriaActual() {
 	if(fgets(bateria, 8, actBateria)!=NULL){
 		printf("\nLa batería actual es: %s", bateria);
 		int ret = 0;
-		for(int i = 0; i<7; i++){
+		for(int i = 0; i<strlen(bateria)-1; i++){
 			ret += (bateria[i] - 'O' + 31);
 			ret *= 10;
 		}
-		ret /=10;	
+		ret /=10;
+			
 		fclose(actBateria);
 		return ret;
 	} else {

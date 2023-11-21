@@ -217,7 +217,7 @@ void bateria(){
 }
 
 void opciones(){
-	printf("\n 1. Directorio");
+	printf("\n\n 1. Directorio");
 	printf("\n 2. Fibonacci");
 	printf("\n 3. Factorial");
 	printf("\n 4. Batería");
@@ -240,6 +240,7 @@ void directorio(){
 	pausa();
 }
 
+//Este método se encarga de iniciar el subproceso que va a generar la secuencia
 void fibo() {
 	printf("\nSe va a iniciar un nuevo proceso para generar la secuencia de Fibonacci mediante el uso de fork:");
 	printf("\nEl PID del proceso padre es: %d", getpid());
@@ -261,12 +262,14 @@ void fibo() {
 	pausa();
 }
 
+//Este método genera los números de la secuencia
 void fibonacci(){
 	int n1 = 0;
 	int n2 = 1;
 	printf("\nImprimiendo la secuencia");
 	printf("\nSe van a generar %d numeros de fibonacci",contador);
 	printf("\n%d\n%d",n1,n2);
+	//Imprimimos exactamente tantos números como el usuario haya introducido
 	for(int i = 0; i<contador - 2; i++){
 		int aux = n2;
 		n2 += n1;
@@ -277,6 +280,8 @@ void fibonacci(){
 	exit(0);
 
 }
+
+//Este método genera el valor factorial de manera recursiva
 int factorial(int value) {
 	if(value<2){
 		return 1;
