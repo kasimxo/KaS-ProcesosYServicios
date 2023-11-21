@@ -23,24 +23,60 @@ pid_t pidSubprocesoRegistro;
 int fp[2];
 
 //Declaraciones de funciones
+//La función principal con el switch que nos llevará a cada una de las opciones
 void menu();
+//La función que imprime las funciones por pantalla
 void opciones();
+//La opción que consulta la batería ejecutando un programa con execl()
 void bateria();
+//Consulta el directorio actual con system()
 void directorio();
+//Crea un subproceso con fork para generar números de fibonacci 
 void fibo();
+//Genera los números de fibonacci
 void fibonacci();
+//Genera el valor factorial de un número de manera recursiva
 int factorial();
+//Pide al usuario que introduzca un número por pantalla y lo devuelve
 int introducirNumero();
+//Comprueba si el valor introducido es número o no
 int comprobarNumero();
+//Transforma una string en un int
 int stringToInt();
+//Detiene la ejecución del programa hasta que el usuario presiona enter
 void pausa();
+//Consulta el usuario actual con system()
+//Además opera con strings:
+//Les da la vuelta
+//Unicamente coge el usuario hasta el primer espacio
 void usuarioActual();
+//Muestra el contenido del fichero RegistroOpciones por pantalla
 void mostrarRegistroOpciones();
+//Elimina el fichero RegistroOpciones
 void eliminarRegistroOpciones();
+//Crea el subproceso que registrará las opciones introducidas por el usuario
 void abrirPipe();
+//Lee el pipe constantemente para ver las opciones que ha introducido el usuario
+//Este metodo lo utiliza el HIJO encargado de registrar las opciones
+//Las opciones introducidas las escribe en el archivo RegistroOpciones
 void leerPipe();
+//Mata el proceso HIJO encargado de registrar las opciones
 void cerrarPipe();
+//Ejecuta cualquier instrucción dada por el usuario en consola con system()
 void consola();
+
+
+/*
+	Este programa ha sido creado por Andrés A.K.A kasimxo
+	para el módulo Programación de servicios y Procesos 
+	de Desarrollo de Aplicaciones Multiplataforma Dual en
+	CPIFP Los Enlaces.
+
+	Hay un enlace de descarga (y se ve mas bonito) en:
+	https://github.com/kasimxo/KaS-ProcesosYServicios
+*/
+
+
 
 int main(int argc, char* argv[]){
 	probando = TRUE;
@@ -126,6 +162,7 @@ void menu(){
 			break;
 	}
 }
+
 //Este método utiliza una pipe para recuperar datos al ejecutar un comando
 void usuarioActual() {
 	FILE *fp;
@@ -142,6 +179,7 @@ void usuarioActual() {
 	}
 	
 	int contador = 0;
+	//Este while tiene una comprobación muy cutre de código ascii para parar si encuentra un espacio o carácter extraño
 	while (contador<= 25 && path[contador] >47 && path[contador]<123) {
 		usuario[contador] = path[contador];
 		contador++;
@@ -152,8 +190,6 @@ void usuarioActual() {
 	for(int i = contador; i>=0; i--) {
 			printf("%c", usuario[i]);
 	}
-	
-
 	pclose(fp);
 	pausa();
 }
@@ -163,7 +199,6 @@ void pausa() {
 	char dummy;
 	char pulsado[100];
 	scanf("%c%*c",&dummy);
-	//scanf("%c",&pulsado);
 }
 
 //Este método muestra un texto y pide al usuario que introduzca un número
@@ -175,23 +210,24 @@ int introducirNumero(char texto[]) {
 		printf("%s", texto);
 		scanf("%s%*c",&escaneado);
 	} while (comprobarNumero(escaneado)==FALSE);
-	if (REGISTRANDO == TRUE) {
-	}
 	return stringToInt(escaneado);	
 }
 
 int stringToInt(char escaneado[]) {
 	int valor = 0;
 	for(int i = 0; i<strlen(escaneado); i++) {
+		//Esto es una transformación de char a int con el código ascii
 		valor +=(escaneado[i] - 'O' + 31);
 		valor *= 10;
 	}
+	//Aquí eliminamos un carácter extra
 	valor /= 10;
 	return valor;
 }
 
 int comprobarNumero(char escaneado[]){
 	for(int i = 0; i<strlen(escaneado); i++) {
+		//Comprobamos si el input es un número o no
 		if(isdigit(escaneado[i])==0) {
 			printf("\nEl valor introducido no es válido");
 			return FALSE;
@@ -210,6 +246,7 @@ void bateria(){
 		execl("./Bateria", NULL);
 	} else 	{
 		int status;
+		//Esperamos específicamente al processo hijo que está consultando la batería
 		waitpid(p, &status,WUNTRACED);	
 		printf("\nSe ha consultado la batería sin errores");
 		pausa();
@@ -245,7 +282,6 @@ void fibo() {
 	printf("\nSe va a iniciar un nuevo proceso para generar la secuencia de Fibonacci mediante el uso de fork:");
 	printf("\nEl PID del proceso padre es: %d", getpid());
 	printf("\nIniciando subproceso.");	
-		
 	pid_t pid = fork();
 	
 	if (pid < 0) {
@@ -256,6 +292,7 @@ void fibo() {
 	} else if(pid>0){
 		printf("\nEl proceso padre va a esperar a que el proceso hijo finalice");
 		int status;
+		//Esperamos especificamente al proceso hijo
 		waitpid(pid, &status,WUNTRACED);	
 		printf("\nEl proceso padre va a reanudar su funcionamiento");
 	}
@@ -308,6 +345,7 @@ void eliminarRegistroOpciones() {
 		pausa();
 		return;
 	}
+	//Comprobamos si el archivo existe antes de eliminarlo
 	if(access("RegistroOpciones", F_OK) == 0) {
 		int resultado = system("rm RegistroOpciones");
 		if(resultado == 0) {
@@ -364,7 +402,9 @@ void leerPipe() {
 	
 	ssize_t rc;
 	while( (rc = read(fp[0], input, 5)) > 0){
+		//Esta variable almacena el output de ejecutar el comando "date" por system
 		FILE *ff;
+		//Esta variable hace referencia al archivo de RegistroOpciones
 		FILE* registroOpciones;
 		registroOpciones = fopen("RegistroOpciones","a");
 	
@@ -378,13 +418,16 @@ void leerPipe() {
 		fclose(registroOpciones);
 		fclose(ff);
 	}
+	//Como este proceso solo lo utilizar el proceso hijo, tiene un exit por si sugiera algún problema
 	exit(0);
 }
 
 void cerrarPipe() {
+	//Antes de nada, comprobamos que realmente se estuviera registrando
 	if(REGISTRANDO == TRUE) {
 		REGISTRANDO = FALSE;
 		printf("\nSe ha detenido el registro de opciones");
+		//Matamos al subproceso hijo
 		kill(pidSubprocesoRegistro, SIGKILL);
 	} else {
 		printf("\nNo se estaban registrando las opciones, por lo que no hay nada que detener");
@@ -394,10 +437,12 @@ void cerrarPipe() {
 
 void consola() {
 	printf("\nIntroduce el comando que quieres ejecutar en la consola: ");
+	//Nos aseguramos de no tener ningún \n en el buffer del stdin
 	fflush(stdin);
 	char input[100];
 	char comando[100];
 	fgets(input, sizeof(input), stdin);
+	//Eliminamos el último caracter
 	if((strlen(input) > 0) && (input[strlen(input)-1] == '\n')) {
 		input[strlen(input)-1] = '\0';
 	}

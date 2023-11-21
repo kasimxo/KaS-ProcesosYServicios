@@ -18,9 +18,13 @@ int bateriaActual;
 float porcentaje;
 
 //Definición de funciones
+//Calcula el porcentaje de batería actual
 double calcularPorcentaje();
+//Consulta un archivo del sistema para saber la capacidad actual de la batería
 int consultarBateriaActual();
+//Consulta un archivo del sistema para saber la capacidad total de la batería
 int consultarBateriaTotal();
+//Consulta un archivo del sistema para saber si el equipo es un portatil
 int comprobarPortatil();
 
 int main(int argc, char* argv[]) {
@@ -68,6 +72,7 @@ int consultarBateriaActual() {
 		printf("\nLa batería actual es: %s", bateria);
 		int ret = 0;
 		for(int i = 0; i<strlen(bateria)-1; i++){
+			//Esto es una transformación muy cutre de char a int con el valor de códigos ASCII
 			ret += (bateria[i] - 'O' + 31);
 			ret *= 10;
 		}
@@ -90,6 +95,7 @@ int consultarBateriaTotal() {
 		printf("\nLa capacidad es: %s",capacidad);
 		int ret = 0;
 		for(int i = 0; i<7; i++){
+			//Lo mismo de la línea 75
 			ret += (capacidad[i] - 'O' + 31);
 			ret *=10;	
 		}
