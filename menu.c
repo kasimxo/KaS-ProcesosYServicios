@@ -18,6 +18,7 @@ pid_t pidSubproceso;
 FILE *registro;
 //REGISTRANDO -> Esta variable almacena si tenemos abierto un subproceso que este registrando las opciones que introducimos
 int REGISTRANDO;
+pid_t pidSubprocesoRegistro;
 //fp -> es la pipe que pasa las selecciones al proceso hijo de registro de seleccion
 int fp[2];
 
@@ -39,6 +40,7 @@ void eliminarRegistroOpciones();
 void abrirPipe();
 void leerPipe();
 void cerrarPipe();
+void consola();
 
 int main(int argc, char* argv[]){
 	probando = TRUE;
@@ -52,7 +54,12 @@ int main(int argc, char* argv[]){
 
 void menu(){
 	system("clear");
-	printf("Programación de servicios y procesos:\nIntroduce tu selección");
+	printf("Programación de servicios y procesos:");
+	if(REGISTRANDO == TRUE) {
+		printf("\nRegistro de opciones: ON");
+	} else {
+		printf("\nRegistro de opciones: OFF");
+	}
 	opciones();
 	sel = introducirNumero("\nIntroduce tu selección: ");
 	
@@ -89,6 +96,8 @@ void menu(){
 			usuarioActual();
 			break;
 		case 6:
+			//Permite al usuario ejecutar comandos en la consola
+			consola();
 			break;
 		case 7:
 			//Eliminar el registro de opciones
@@ -153,8 +162,8 @@ void pausa() {
 	printf("\nPulsa cualquier tecla y presiona enter para continuar...");
 	char dummy;
 	char pulsado[100];
-	scanf("%c",&dummy);
-	scanf("%c",&pulsado);
+	scanf("%c%*c",&dummy);
+	//scanf("%c",&pulsado);
 }
 
 //Este método muestra un texto y pide al usuario que introduzca un número
@@ -164,7 +173,7 @@ int introducirNumero(char texto[]) {
 	char escaneado[100];
 	do {
 		printf("%s", texto);
-		scanf("%s",&escaneado);
+		scanf("%s%*c",&escaneado);
 	} while (comprobarNumero(escaneado)==FALSE);
 	if (REGISTRANDO == TRUE) {
 	}
@@ -213,7 +222,7 @@ void opciones(){
 	printf("\n 3. Factorial");
 	printf("\n 4. Batería");
 	printf("\n 5. Usuario");
-	printf("\n 6. ");
+	printf("\n 6. Consola");
 	printf("\n 7. Eliminar registro de opciones");
 	printf("\n 8. Consultar registro de opciones");
 	printf("\n 9. Iniciar registro de opciones");
@@ -288,6 +297,12 @@ void mostrarRegistroOpciones() {
 }
 
 void eliminarRegistroOpciones() {
+	//No permitimos la usuario eliminar el registro si se está registrando en ese momento
+	if(REGISTRANDO == TRUE) {
+		printf("\nActualmente se están registrando las opciones\nPara poder eliminar el archivo de registro de opciones, primero debes finalizar el registro de opciones");
+		pausa();
+		return;
+	}
 	if(access("RegistroOpciones", F_OK) == 0) {
 		int resultado = system("rm RegistroOpciones");
 		if(resultado == 0) {
@@ -303,28 +318,37 @@ void eliminarRegistroOpciones() {
 }
 
 void abrirPipe() {
-	//Primero comprobamos si existe el archivo de RegistroOpciones y si no, lo creamos
+	//Comprobamos si ya estamos registrando y si abortamos si es el caso
+	if(REGISTRANDO == TRUE) {
+		printf("\nYa se estaban registrando las opciones");
+		pausa();
+		return;
+	}
+	
+	//Comprobamos si existe el archivo de RegistroOpciones y si no, lo creamos
 	if(access("RegistroOpciones", F_OK) != 0) {
 		system("echo > RegistroOpciones");
 		registro = fopen("RegistroOpciones", "w");
 		fprintf(registro, "Selección\tFecha y hora\n");
 		fclose(registro);
 	}
-
+	
+	//Abrimos el Pipe entre procesos
 	if( pipe(fp) == -1 ) {
 		printf("\nHa surgido un error en la apertura del pipe");
 	} else {
-		pid_t pid = fork();
-		if(pid < 0) {
+		pidSubprocesoRegistro = fork();
+		if(pidSubprocesoRegistro < 0) {
 			perror("\nHa fallado la apertura del registro de opciones");
-		} else if ( pid == 0) {
+		} else if ( pidSubprocesoRegistro == 0) {
 			close(fp[1]);
 			probando = FALSE;
 			leerPipe();	
 		} else {
 			REGISTRANDO = TRUE;
 			close(fp[0]);
-		//	pause();
+			printf("\nSe ha iniciado el registro de opciones");
+			pausa();
 		}
 	}	
 }
@@ -342,9 +366,6 @@ void leerPipe() {
 		char hora[35];
 		char *com = "date";
 		ff = popen(com, "r");
-		//while(fgets(hora, sizeof(hora), ff) != NULL) {
-		//	puts(hora);
-		//}
 		
 		fgets(hora, sizeof(hora), ff);
 
@@ -356,7 +377,25 @@ void leerPipe() {
 }
 
 void cerrarPipe() {
-	REGISTRANDO = FALSE;
-	printf("\nSe ha detenido el registro de opciones");
+	if(REGISTRANDO == TRUE) {
+		REGISTRANDO = FALSE;
+		printf("\nSe ha detenido el registro de opciones");
+		kill(pidSubprocesoRegistro, SIGKILL);
+	} else {
+		printf("\nNo se estaban registrando las opciones, por lo que no hay nada que detener");
+	}
+	pausa();
+}
+
+void consola() {
+	printf("\nIntroduce el comando que quieres ejecutar en la consola: ");
+	fflush(stdin);
+	char input[100];
+	char comando[100];
+	fgets(input, sizeof(input), stdin);
+	if((strlen(input) > 0) && (input[strlen(input)-1] == '\n')) {
+		input[strlen(input)-1] = '\0';
+	}
+	system(input);
 	pausa();
 }
