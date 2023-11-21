@@ -16,6 +16,10 @@ int contador;
 int probando;
 pid_t pidSubproceso;
 FILE *registro;
+//REGISTRANDO -> Esta variable almacena si tenemos abierto un subproceso que este registrando las opciones que introducimos
+int REGISTRANDO;
+//fp -> es la pipe que pasa las selecciones al proceso hijo de registro de seleccion
+int fp[2];
 
 //Declaraciones de funciones
 void menu();
@@ -33,10 +37,12 @@ void usuarioActual();
 void mostrarRegistroOpciones();
 void eliminarRegistroOpciones();
 void abrirPipe();
+void leerPipe();
 void cerrarPipe();
 
 int main(int argc, char* argv[]){
 	probando = TRUE;
+	REGISTRANDO = FALSE;
 	while(probando == TRUE){
 		menu();
 	}
@@ -49,6 +55,14 @@ void menu(){
 	printf("Programación de servicios y procesos:\nIntroduce tu selección");
 	opciones();
 	sel = introducirNumero("\nIntroduce tu selección: ");
+	
+	if(REGISTRANDO == TRUE && sel > 0 && sel < 12) {
+		char str[5];
+		sprintf(str, "%d", sel);
+		write(fp[1], str, 5);
+		printf("\nSe ha registrado la opción: %d", sel);
+	}
+
 	printf("\nHas seleccionado la opción: %d",sel);
 	switch (sel){
 		case 1:
@@ -152,7 +166,8 @@ int introducirNumero(char texto[]) {
 		printf("%s", texto);
 		scanf("%s",&escaneado);
 	} while (comprobarNumero(escaneado)==FALSE);
-
+	if (REGISTRANDO == TRUE) {
+	}
 	return stringToInt(escaneado);	
 }
 
@@ -264,6 +279,7 @@ int factorial(int value) {
 
 void mostrarRegistroOpciones() {
 	if(access("RegistroOpciones", F_OK) == 0) {
+		printf("\nMostrando el contenido del Registro de Opciones");
 		system("cat RegistroOpciones");
 	} else {
 		printf("\nNo se ha encontrado el registro de opciones. ¿Seguro que habías creado alguno?");
@@ -287,7 +303,60 @@ void eliminarRegistroOpciones() {
 }
 
 void abrirPipe() {
+	//Primero comprobamos si existe el archivo de RegistroOpciones y si no, lo creamos
+	if(access("RegistroOpciones", F_OK) != 0) {
+		system("echo > RegistroOpciones");
+		registro = fopen("RegistroOpciones", "w");
+		fprintf(registro, "Selección\tFecha y hora\n");
+		fclose(registro);
+	}
+
+	if( pipe(fp) == -1 ) {
+		printf("\nHa surgido un error en la apertura del pipe");
+	} else {
+		pid_t pid = fork();
+		if(pid < 0) {
+			perror("\nHa fallado la apertura del registro de opciones");
+		} else if ( pid == 0) {
+			close(fp[1]);
+			probando = FALSE;
+			leerPipe();	
+		} else {
+			REGISTRANDO = TRUE;
+			close(fp[0]);
+		//	pause();
+		}
+	}	
+}
+
+void leerPipe() {
+	
+	char* input[5];
+	
+	ssize_t rc;
+	while( (rc = read(fp[0], input, 5)) > 0){
+		FILE *ff;
+		FILE* registroOpciones;
+		registroOpciones = fopen("RegistroOpciones","a");
+	
+		char hora[35];
+		char *com = "date";
+		ff = popen(com, "r");
+		//while(fgets(hora, sizeof(hora), ff) != NULL) {
+		//	puts(hora);
+		//}
+		
+		fgets(hora, sizeof(hora), ff);
+
+		fprintf(registroOpciones, "%s\t\t%s", input, hora);
+		fclose(registroOpciones);
+		fclose(ff);
+	}
+	exit(0);
 }
 
 void cerrarPipe() {
+	REGISTRANDO = FALSE;
+	printf("\nSe ha detenido el registro de opciones");
+	pausa();
 }

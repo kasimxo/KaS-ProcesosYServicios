@@ -55,7 +55,7 @@ int comprobarPortatil() {
 double calcularPorcentaje() {
 	double total = bateriaTotal * 1.00;
 	double actual = bateriaActual * 1.00;
-	double porcentaje = actual/total * 100.00;
+	float porcentaje = actual/total * 100;
 	return porcentaje;
 }
 
